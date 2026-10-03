@@ -1,3 +1,5 @@
+import json
+import os
 import re
 from chatbot import get_bot_response
 from github_store import sync_to_github
@@ -6,8 +8,6 @@ import pandas as pd
 import streamlit as st
 from utils import normalize_phone, sanitize_csv_field
 import urllib.parse
-import json
-import os
 
 # --- 1. PAGE CONFIG ---
 st.set_page_config(
@@ -17,7 +17,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",  # Sidebar expanded by default for clean navigation
 )
 
-# --- 2. ULTRA-VIBRANT OBSIDIAN, NEON CRIMSON & STEEL THEME ---
+# --- 2. ULTRA-VIBRANT OBSIDIAN, NEON CRIMSON & STEEL THEME + SIDEBAR FIX ---
 st.markdown(
     """
 <style>
@@ -42,15 +42,22 @@ st.markdown(
         max-width: 1200px;
     }
 
-    /* Sidebar Styling */
+    /* Sidebar Styling & Width Fix */
     section[data-testid="stSidebar"] {
         background: linear-gradient(180deg, #181014 0%, #0c0a09 100%) !important;
         border-right: 1px solid rgba(244, 63, 94, 0.25) !important;
         padding-top: 1rem;
+        min-width: 250px !important;
+        max-width: 350px !important;
     }
 
     section[data-testid="stSidebar"] .block-container {
         padding-top: 1rem !important;
+    }
+
+    /* Ensure buttons inside sidebar scale nicely */
+    [data-testid="stSidebar"] div.stButton > button {
+        width: 100% !important;
     }
 
     /* Brand-New Professional Teacher "SA Academy" Shield Logo */
@@ -961,7 +968,7 @@ elif st.session_state.active_tab == "Admission":
                             json.dump(existing_data, f, indent=4)
                         sync_to_github("admissions.json")
                     except Exception as e:
-                        pass # Fallback or silent pass if auxiliary modules handle local state
+                        pass 
 
                     st.success("🎉 Admission application submitted successfully! Sir Abdullah's team will contact you shortly via WhatsApp.")
                     st.balloons()
@@ -1004,7 +1011,6 @@ elif st.session_state.active_tab == "Admin":
     st.markdown('<div class="vibrant-title">Admin Dashboard</div>', unsafe_allow_html=True)
     st.markdown('<div class="vibrant-subtitle">Manage student admissions and view application records.</div>', unsafe_allow_html=True)
 
-    # Simple password protection check
     if "admin_logged_in" not in st.session_state:
         st.session_state.admin_logged_in = False
 
@@ -1028,7 +1034,6 @@ elif st.session_state.active_tab == "Admin":
 
         st.markdown("### 📋 Submitted Student Applications")
         
-        # Load admissions data safely using standard JSON
         if os.path.exists("admissions.json"):
             with open("admissions.json", "r") as f:
                 admissions = json.load(f)
@@ -1038,11 +1043,9 @@ elif st.session_state.active_tab == "Admin":
         if not admissions:
             st.info("No admission applications received yet.")
         else:
-            # Convert list to pandas dataframe for nice table display
             df = pd.DataFrame(admissions)
             st.dataframe(df, use_container_width=True)
             
-            # Option to download CSV
             csv_data = df.to_csv(index=False).encode('utf-8')
             st.download_button(
                 label="📥 Download Applications as CSV",
