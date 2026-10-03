@@ -1,5 +1,3 @@
-import json
-import os
 import re
 from chatbot import get_bot_response
 from github_store import sync_to_github
@@ -8,22 +6,24 @@ import pandas as pd
 import streamlit as st
 from utils import normalize_phone, sanitize_csv_field
 import urllib.parse
+import json
+import os
 
 # --- 1. PAGE CONFIG ---
 st.set_page_config(
     page_title="Sir Abdullah Academy | Premier CAIE Portal",
     page_icon="🎓",
     layout="wide",
-    initial_sidebar_state="expanded",  # Sidebar expanded by default for clean navigation
+    initial_sidebar_state="collapsed",
 )
 
-# --- 2. ULTRA-VIBRANT OBSIDIAN, NEON CRIMSON & STEEL THEME + SIDEBAR FIX ---
+# --- 2. ULTRA-VIBRANT OBSIDIAN, NEON CRIMSON & STEEL THEME ---
 st.markdown(
     """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-    /* Hide Default Streamlit Chrome Header/Footer */
+    /* Hide Default Streamlit Chrome */
     #MainMenu, footer, header { visibility: hidden !important; }
 
     html, body, [class*="css"] {
@@ -37,41 +37,21 @@ st.markdown(
     }
 
     .block-container {
-        padding-top: 2rem !important;
+        padding-top: 1.5rem !important;
         padding-bottom: 3rem !important;
         max-width: 1200px;
-    }
-
-    /* Sidebar Styling & Width Fix */
-    section[data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #181014 0%, #0c0a09 100%) !important;
-        border-right: 1px solid rgba(244, 63, 94, 0.25) !important;
-        padding-top: 1rem;
-        min-width: 250px !important;
-        max-width: 350px !important;
-    }
-
-    section[data-testid="stSidebar"] .block-container {
-        padding-top: 1rem !important;
-    }
-
-    /* Ensure buttons inside sidebar scale nicely */
-    [data-testid="stSidebar"] div.stButton > button {
-        width: 100% !important;
     }
 
     /* Brand-New Professional Teacher "SA Academy" Shield Logo */
     .brand-logo-container {
         display: flex;
         align-items: center;
-        gap: 14px;
-        margin-bottom: 1.5rem;
-        padding: 0.5rem;
+        gap: 16px;
     }
 
     .brand-shield {
-        width: 48px;
-        height: 48px;
+        width: 52px;
+        height: 52px;
         background: linear-gradient(135deg, #181214 0%, #0c0a09 100%);
         border: 2px solid #f43f5e;
         border-radius: 12px 18px 12px 18px;
@@ -79,7 +59,7 @@ st.markdown(
         align-items: center;
         justify-content: center;
         position: relative;
-        box-shadow: 0 0 20px rgba(244, 63, 94, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 25px rgba(244, 63, 94, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.15);
     }
 
     .brand-shield-inner {
@@ -90,14 +70,14 @@ st.markdown(
     }
 
     .brand-letter-s {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         font-weight: 900;
         color: #ffffff;
         letter-spacing: -1px;
     }
 
     .brand-letter-a {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         font-weight: 900;
         background: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%);
         -webkit-background-clip: text;
@@ -111,13 +91,13 @@ st.markdown(
         right: -6px;
         background: #f43f5e;
         color: #ffffff;
-        font-size: 0.5rem;
+        font-size: 0.55rem;
         font-weight: 800;
-        padding: 1px 4px;
+        padding: 1px 5px;
         border-radius: 4px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        box-shadow: 0 0 8px #f43f5e;
+        box-shadow: 0 0 10px #f43f5e;
     }
 
     .brand-text-wrapper {
@@ -127,7 +107,7 @@ st.markdown(
     }
 
     .brand-text {
-        font-size: 1.15rem;
+        font-size: 1.25rem;
         font-weight: 800;
         background: linear-gradient(135deg, #ffffff 0%, #d6d3d1 100%);
         -webkit-background-clip: text;
@@ -136,7 +116,7 @@ st.markdown(
     }
 
     .brand-subtext {
-        font-size: 0.6rem;
+        font-size: 0.65rem;
         font-weight: 800;
         letter-spacing: 2px;
         color: #fb7185;
@@ -179,26 +159,14 @@ st.markdown(
         box-shadow: 0 0 20px rgba(244, 63, 94, 0.4) !important;
     }
 
-    /* Sidebar Radio Navigation Styling */
-    div[data-testid="stRadio"] > div {
-        gap: 8px !important;
-    }
-    div[data-testid="stRadio"] label {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(244, 63, 94, 0.15);
-        border-radius: 12px;
-        padding: 0.5rem 1rem;
-        transition: all 0.2s ease;
-        width: 100%;
-    }
-    div[data-testid="stRadio"] label:hover {
-        background: rgba(244, 63, 94, 0.1);
-        border-color: rgba(244, 63, 94, 0.4);
-    }
-    div[data-testid="stRadio"] span {
-        color: #f5f5f4 !important;
+    div[data-testid="stColumn"] button[kind="tertiary"] {
+        color: #d6d3d1 !important;
         font-weight: 600 !important;
-        font-size: 0.92rem !important;
+        background: transparent !important;
+    }
+    div[data-testid="stColumn"] button[kind="tertiary"]:hover {
+        color: #fb7185 !important;
+        background: rgba(244, 63, 94, 0.08) !important;
     }
 
     /* Vibrant Typography Headers */
@@ -601,8 +569,10 @@ if "selected_course_for_enrollment" not in st.session_state:
 if "active_tab" not in st.session_state:
     st.session_state.active_tab = "Home"
 
-# --- 4. SIDEBAR NAVIGATION ---
-with st.sidebar:
+# --- 4. TOP NAVBAR ---
+col_logo, col_nav, col_cta = st.columns([2.2, 3.2, 1.2])
+
+with col_logo:
     st.markdown(
         """
     <div class="brand-logo-container">
@@ -622,56 +592,70 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        "<p style='color: #78716c; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;'>Navigation Menu</p>",
-        unsafe_allow_html=True,
-    )
+with col_nav:
+    n1, n2, n3, n4, n5 = st.columns(5)
+    with n1:
+        if st.button(
+            "Home",
+            key="nav_home",
+            type="primary"
+            if st.session_state.active_tab == "Home"
+            else "tertiary",
+        ):
+            st.session_state.active_tab = "Home"
+            st.rerun()
+    with n2:
+        if st.button(
+            "Courses",
+            key="nav_courses",
+            type="primary"
+            if st.session_state.active_tab == "Courses"
+            else "tertiary",
+        ):
+            st.session_state.active_tab = "Courses"
+            st.rerun()
+    with n3:
+        if st.button(
+            "Admission",
+            key="nav_admission",
+            type="primary"
+            if st.session_state.active_tab == "Admission"
+            else "tertiary",
+        ):
+            st.session_state.active_tab = "Admission"
+            st.rerun()
+    with n4:
+        if st.button(
+            "AI Tutor",
+            key="nav_ai",
+            type="primary"
+            if st.session_state.active_tab == "Assistant"
+            else "tertiary",
+        ):
+            st.session_state.active_tab = "Assistant"
+            st.rerun()
+    with n5:
+        if st.button(
+            "Admin",
+            key="nav_admin",
+            type="primary"
+            if st.session_state.active_tab == "Admin"
+            else "tertiary",
+        ):
+            st.session_state.active_tab = "Admin"
+            st.rerun()
 
-    nav_options = ["Home", "Courses", "Admission", "AI Tutor", "Admin"]
-    
-    # Map current active tab index
-    current_index = nav_options.index(st.session_state.active_tab) if st.session_state.active_tab in nav_options else 0
-    if st.session_state.active_tab == "Assistant":
-        current_index = 3
-
-    selected_nav = st.radio(
-        "Main Navigation",
-        nav_options,
-        index=current_index,
-        label_visibility="collapsed"
-    )
-
-    # Sync selection back to active_tab
-    if selected_nav == "AI Tutor":
-        st.session_state.active_tab = "Assistant"
-    else:
-        st.session_state.active_tab = selected_nav
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Quick Action Card in Sidebar
-    st.markdown(
-        """
-        <div style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 14px; padding: 1.1rem; text-align: center;">
-            <div style="font-size: 0.8rem; font-weight: 800; color: #fb7185; margin-bottom: 0.3rem;">🚀 READY TO EXCEL?</div>
-            <div style="font-size: 0.85rem; color: #d6d3d1; margin-bottom: 0.8rem;">Join top achievers in O & A Levels with Sir Abdullah.</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    
-    if st.button("Apply For Admission Now", key="sidebar_enroll_btn", type="primary", use_container_width=True):
+with col_cta:
+    if st.button(
+        "Enroll Now 🚀", key="nav_enroll_btn", type="secondary", use_container_width=True
+    ):
         st.session_state.active_tab = "Admission"
         st.rerun()
 
-    st.markdown(
-        "<hr style='border: none; border-bottom: 1px solid rgba(244,63,94,0.2); margin: 1.5rem 0;'>",
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        "<div style='text-align: center; color: #78716c; font-size: 0.72rem;'>© 2026 Sir Abdullah Academy<br>All Rights Reserved.</div>",
-        unsafe_allow_html=True,
-    )
+st.markdown(
+    "<hr style='border: none; border-bottom: 1px solid rgba(244,63,94,0.2); margin: 1.2rem 0 2rem 0;'>",
+    unsafe_allow_html=True,
+)
 
 # --- 5. PAGE ROUTING ---
 
@@ -968,7 +952,7 @@ elif st.session_state.active_tab == "Admission":
                             json.dump(existing_data, f, indent=4)
                         sync_to_github("admissions.json")
                     except Exception as e:
-                        pass 
+                        pass # Fallback or silent pass if auxiliary modules handle local state
 
                     st.success("🎉 Admission application submitted successfully! Sir Abdullah's team will contact you shortly via WhatsApp.")
                     st.balloons()
@@ -1011,6 +995,7 @@ elif st.session_state.active_tab == "Admin":
     st.markdown('<div class="vibrant-title">Admin Dashboard</div>', unsafe_allow_html=True)
     st.markdown('<div class="vibrant-subtitle">Manage student admissions and view application records.</div>', unsafe_allow_html=True)
 
+    # Simple password protection check
     if "admin_logged_in" not in st.session_state:
         st.session_state.admin_logged_in = False
 
@@ -1034,6 +1019,7 @@ elif st.session_state.active_tab == "Admin":
 
         st.markdown("### 📋 Submitted Student Applications")
         
+        # Load admissions data safely using standard JSON
         if os.path.exists("admissions.json"):
             with open("admissions.json", "r") as f:
                 admissions = json.load(f)
@@ -1043,9 +1029,11 @@ elif st.session_state.active_tab == "Admin":
         if not admissions:
             st.info("No admission applications received yet.")
         else:
+            # Convert list to pandas dataframe for nice table display
             df = pd.DataFrame(admissions)
             st.dataframe(df, use_container_width=True)
             
+            # Option to download CSV
             csv_data = df.to_csv(index=False).encode('utf-8')
             st.download_button(
                 label="📥 Download Applications as CSV",
