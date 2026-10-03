@@ -405,6 +405,7 @@ st.markdown(
 
 # --- 3. CONFIG & DATA ---
 ADMIN_PASSWORD = st.secrets.get("ADMIN_PASSWORD", "osmanibhai112233")
+ADMIN_WHATSAPP_PHONE = "923001234567" # Replace or configure with Sir Abdullah's official WhatsApp number
 
 SPECIAL_COMBOS = [
     {
@@ -952,9 +953,25 @@ elif st.session_state.active_tab == "Admission":
                             json.dump(existing_data, f, indent=4)
                         sync_to_github("admissions.json")
                     except Exception as e:
-                        pass # Fallback or silent pass if auxiliary modules handle local state
+                        pass 
 
                     st.success("🎉 Admission application submitted successfully! Sir Abdullah's team will contact you shortly via WhatsApp.")
+                    
+                    # --- UPGRADED: GENERATE INSTANT WHATSAPP NOTIFICATION LINK ---
+                    wa_message = f"Hello Sir Abdullah Academy, my name is {student_name}. I have just submitted an admission application for {selected_course}. Please guide me regarding the enrollment process!"
+                    encoded_wa_msg = urllib.parse.quote(wa_message)
+                    wa_link = f"https://wa.me/{ADMIN_WHATSAPP_PHONE}?text={encoded_wa_msg}"
+                    
+                    st.markdown(
+                        f"""
+                        <div style="margin-top: 1.2rem; padding: 1rem; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 12px; text-align: center;">
+                            <p style="color: #4ade80; font-weight: 700; margin-bottom: 0.6rem;">📱 Instant WhatsApp Confirmation</p>
+                            <a href="{wa_link}" target="_blank" style="display: inline-block; background: #25d366; color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 10px; font-weight: 800; text-decoration: none; box-shadow: 0 0 15px rgba(37, 211, 102, 0.4);">Click Here to Message Sir Abdullah on WhatsApp 💬</a>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+                    
                     st.balloons()
 
 # PAGE: AI ASSISTANT / TUTOR
