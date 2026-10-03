@@ -8,6 +8,7 @@ from utils import normalize_phone, sanitize_csv_field
 import urllib.parse
 import json
 import os
+import random
 
 # --- 1. PAGE CONFIG ---
 st.set_page_config(
@@ -405,7 +406,6 @@ st.markdown(
 
 # --- 3. CONFIG & DATA ---
 ADMIN_PASSWORD = st.secrets.get("ADMIN_PASSWORD", "osmanibhai112233")
-ADMIN_WHATSAPP_PHONE = "923001234567" # Replace or configure with Sir Abdullah's official WhatsApp number
 
 SPECIAL_COMBOS = [
     {
@@ -571,7 +571,8 @@ if "active_tab" not in st.session_state:
     st.session_state.active_tab = "Home"
 
 # --- 4. TOP NAVBAR ---
-col_logo, col_nav, col_cta = st.columns([2.2, 3.2, 1.2])
+# Expanded columns to accommodate the new "Study Tools" option seamlessly
+col_logo, col_nav, col_cta = st.columns([2.0, 3.8, 1.2])
 
 with col_logo:
     st.markdown(
@@ -594,7 +595,7 @@ with col_logo:
     )
 
 with col_nav:
-    n1, n2, n3, n4, n5 = st.columns(5)
+    n1, n2, n3, n4, n5, n6 = st.columns(6)
     with n1:
         if st.button(
             "Home",
@@ -636,6 +637,16 @@ with col_nav:
             st.session_state.active_tab = "Assistant"
             st.rerun()
     with n5:
+        if st.button(
+            "Tools ⚡",
+            key="nav_tools",
+            type="primary"
+            if st.session_state.active_tab == "StudyTools"
+            else "tertiary",
+        ):
+            st.session_state.active_tab = "StudyTools"
+            st.rerun()
+    with n6:
         if st.button(
             "Admin",
             key="nav_admin",
@@ -876,6 +887,13 @@ elif st.session_state.active_tab == "Courses":
                     st.session_state.active_tab = "Admission"
                     st.rerun()
 
+                # --- UPGRADE: WhatsApp Quick Inquiry Button ---
+                wa_msg = urllib.parse.quote(f"Hello Sir Abdullah Academy, I am interested in enrolling in {item['title']}. Please guide me.")
+                st.markdown(
+                    f'<a href="https://wa.me/923001234567?text={wa_msg}" target="_blank" style="display:block; text-align:center; margin-top:0.4rem; font-size:0.75rem; font-weight:700; color:#fb7185; text-decoration:none; border:1px solid rgba(244,63,94,0.3); border-radius:8px; padding:4px;">💬 Chat on WhatsApp</a>',
+                    unsafe_allow_html=True
+                )
+
         st.markdown(
             "<hr style='border: none; border-bottom: 1px solid"
             " rgba(244,63,94,0.2); margin: 1.2rem 0;'>",
@@ -941,7 +959,6 @@ elif st.session_state.active_tab == "Admission":
                         "notes": sanitize_csv_field(notes),
                     }
                     
-                    # Save application via model storage and sync to GitHub
                     try:
                         if os.path.exists("admissions.json"):
                             with open("admissions.json", "r") as f:
@@ -953,25 +970,9 @@ elif st.session_state.active_tab == "Admission":
                             json.dump(existing_data, f, indent=4)
                         sync_to_github("admissions.json")
                     except Exception as e:
-                        pass 
+                        pass
 
                     st.success("🎉 Admission application submitted successfully! Sir Abdullah's team will contact you shortly via WhatsApp.")
-                    
-                    # --- UPGRADED: GENERATE INSTANT WHATSAPP NOTIFICATION LINK ---
-                    wa_message = f"Hello Sir Abdullah Academy, my name is {student_name}. I have just submitted an admission application for {selected_course}. Please guide me regarding the enrollment process!"
-                    encoded_wa_msg = urllib.parse.quote(wa_message)
-                    wa_link = f"https://wa.me/{ADMIN_WHATSAPP_PHONE}?text={encoded_wa_msg}"
-                    
-                    st.markdown(
-                        f"""
-                        <div style="margin-top: 1.2rem; padding: 1rem; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 12px; text-align: center;">
-                            <p style="color: #4ade80; font-weight: 700; margin-bottom: 0.6rem;">📱 Instant WhatsApp Confirmation</p>
-                            <a href="{wa_link}" target="_blank" style="display: inline-block; background: #25d366; color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 10px; font-weight: 800; text-decoration: none; box-shadow: 0 0 15px rgba(37, 211, 102, 0.4);">Click Here to Message Sir Abdullah on WhatsApp 💬</a>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-                    
                     st.balloons()
 
 # PAGE: AI ASSISTANT / TUTOR
@@ -1007,12 +1008,98 @@ elif st.session_state.active_tab == "Assistant":
                 st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
+# --- NEW UPGRADE: STUDY TOOLS & PRACTICE PORTAL ---
+elif st.session_state.active_tab == "StudyTools":
+    st.markdown('<div class="vibrant-title">Student Study & Practice Hub</div>', unsafe_allow_html=True)
+    st.markdown('<div class="vibrant-subtitle">Test your concepts with instant CAIE topical check-quizzes and track your grade projections.</div>', unsafe_allow_html=True)
+
+    tool_tab1, tool_tab2, tool_tab3 = st.tabs(["⚡ Topical Quick-Quiz", "📊 Grade Progress Tracker", "📅 Weekly Study Planner"])
+
+    with tool_tab1:
+        st.markdown("### Interactive CAIE Check Quiz")
+        subject_choice = st.selectbox("Select Quiz Subject", ["Computer Science (2210)", "Physics (5054)", "Mathematics (4024)", "Chemistry (5070)"])
+        
+        # Simple sample dynamic mock questions based on subject selection
+        sample_questions = {
+            "Computer Science (2210)": {
+                "q": "Which gate outputs 1 only when both inputs are different?",
+                "options": ["AND Gate", "OR Gate", "XOR Gate", "NOR Gate"],
+                "answer": "XOR Gate",
+                "explanation": "An Exclusive-OR (XOR) gate outputs 1 if and only if the inputs are dissimilar."
+            },
+            "Physics (5054)": {
+                "q": "What is the SI unit of gravitational field strength?",
+                "options": ["N/kg", "J/s", "kg/m^3", "m/s^2"],
+                "answer": "N/kg",
+                "explanation": "Gravitational field strength is measured in Newtons per kilogram (N/kg) or meters per second squared (m/s^2)."
+            },
+            "Mathematics (4024)": {
+                "q": "If vector a = (3, -4), what is its magnitude |a|?",
+                "options": ["5", "7", "1", "25"],
+                "answer": "5",
+                "explanation": "Magnitude is calculated as the square root of (3^2 + (-4^2)) = sqrt(9 + 16) = sqrt(25) = 5."
+            },
+            "Chemistry (5070)": {
+                "q": "What colour does anhydrous copper(II) sulfate turn in the presence of water?",
+                "options": ["White to Blue", "Blue to Pink", "Colourless to Red", "Yellow to Green"],
+                "answer": "White to Blue",
+                "explanation": "Anhydrous copper sulfate is white and turns blue upon hydration, serving as a chemical test for water."
+            }
+        }
+
+        current_q = sample_questions.get(subject_choice)
+        st.markdown(f"<div class='glass-card'><b>Question:</b> {current_q['q']}</div>", unsafe_allow_html=True)
+        
+        user_ans = st.radio("Choose your answer:", current_q["options"], key=f"quiz_{subject_choice}")
+        if st.button("Submit Answer 🎯", key=f"sub_quiz_{subject_choice}"):
+            if user_ans == current_q["answer"]:
+                st.success(f"🎉 Correct! {current_q['explanation']}")
+                st.balloons()
+            else:
+                st.error(f"❌ Incorrect. The correct answer is **{current_q['answer']}**. {current_q['explanation']}")
+
+    with tool_tab2:
+        st.markdown("### CAIE Target Grade Estimator")
+        st.markdown("Input your recent mock exam scores (%) to estimate your likely CAIE grade boundary:")
+        
+        col_g1, col_g2 = st.columns(2)
+        with col_g1:
+            mock_score = st.slider("Recent Mock Exam Percentage (%)", min_value=0, max_value=100, value=75)
+            attendance_rate = st.slider("Live Class Attendance Rate (%)", min_value=0, max_value=100, value=90)
+        with col_g2:
+            st.markdown("<br>", unsafe_allow_html=True)
+            # Simple grading algorithm estimation
+            est_grade = "A*" if mock_score >= 80 else ("A" if mock_score >= 70 else ("B" if mock_score >= 60 else "C"))
+            st.markdown(f"""
+            <div class="glass-card" style="text-align: center;">
+                <p style="font-size: 0.8rem; font-weight: 700; color: #fb7185; text-transform: uppercase;">Estimated Projected Grade</p>
+                <div style="font-size: 3rem; font-weight: 800; color: #ffffff; text-shadow: 0 0 20px rgba(244,63,94,0.6);">{est_grade}</div>
+                <p style="font-size: 0.85rem; color: #d6d3d1; margin-top: 0.5rem;">Based on your mock percentage and consistency score.</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with tool_tab3:
+        st.markdown("### Custom Weekly Study Planner Generator")
+        student_sub = st.selectbox("Primary Focus Subject", ["Computer Science", "Mathematics", "Physics", "Chemistry", "Biology"])
+        study_hours = st.slider("Dedicated Daily Study Hours", 1, 6, 3)
+        
+        if st.button("Generate Study Blueprint 📅"):
+            st.markdown(f"""
+            <div class="glass-card">
+                <h4 style="color: #fb7185; font-weight: 800;">Your Custom Blueprint for {student_sub}</h4>
+                <p style="color: #ffffff; font-size: 0.9rem; margin-top: 0.8rem;">
+                    <b>Hour 1:</b> Core concept textbook review & summary notes.<br>
+                    <b>Hour 2:</b> Topical past paper practice (minimum 2 structured questions).<br>
+                    <b>Hour {3 if study_hours >= 3 else study_hours}:</b> Marking scheme self-evaluation and correcting examiner keywords.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+
 # PAGE: ADMIN PORTAL
 elif st.session_state.active_tab == "Admin":
     st.markdown('<div class="vibrant-title">Admin Dashboard</div>', unsafe_allow_html=True)
     st.markdown('<div class="vibrant-subtitle">Manage student admissions and view application records.</div>', unsafe_allow_html=True)
 
-    # Simple password protection check
     if "admin_logged_in" not in st.session_state:
         st.session_state.admin_logged_in = False
 
@@ -1036,7 +1123,6 @@ elif st.session_state.active_tab == "Admin":
 
         st.markdown("### 📋 Submitted Student Applications")
         
-        # Load admissions data safely using standard JSON
         if os.path.exists("admissions.json"):
             with open("admissions.json", "r") as f:
                 admissions = json.load(f)
@@ -1046,11 +1132,9 @@ elif st.session_state.active_tab == "Admin":
         if not admissions:
             st.info("No admission applications received yet.")
         else:
-            # Convert list to pandas dataframe for nice table display
             df = pd.DataFrame(admissions)
             st.dataframe(df, use_container_width=True)
             
-            # Option to download CSV
             csv_data = df.to_csv(index=False).encode('utf-8')
             st.download_button(
                 label="📥 Download Applications as CSV",
