@@ -8,7 +8,6 @@ from utils import normalize_phone, sanitize_csv_field
 import urllib.parse
 import json
 import os
-import random
 
 # --- 1. PAGE CONFIG ---
 st.set_page_config(
@@ -43,7 +42,7 @@ st.markdown(
         max-width: 1200px;
     }
 
-    /* Brand-New Professional Teacher "SA Academy" Shield Logo */
+    /* Professional Teacher "SA Academy" Shield Logo */
     .brand-logo-container {
         display: flex;
         align-items: center;
@@ -170,7 +169,7 @@ st.markdown(
         background: rgba(244, 63, 94, 0.08) !important;
     }
 
-    /* Vibrant Typography Headers */
+    /* Typography Headers */
     h1, h2, h3 {
         color: #ffffff !important;
         letter-spacing: -0.5px;
@@ -193,7 +192,7 @@ st.markdown(
         margin-bottom: 2rem;
     }
 
-    /* Glass Panels & Cards with Vibrant Glowing Borders */
+    /* Glass Cards */
     .glass-card {
         background: linear-gradient(135deg, rgba(30, 24, 27, 0.85) 0%, rgba(18, 15, 17, 0.95) 100%);
         border: 1px solid rgba(244, 63, 94, 0.25);
@@ -570,9 +569,8 @@ if "selected_course_for_enrollment" not in st.session_state:
 if "active_tab" not in st.session_state:
     st.session_state.active_tab = "Home"
 
-# --- 4. TOP NAVBAR ---
-# Expanded columns to accommodate the new "Study Tools" option seamlessly
-col_logo, col_nav, col_cta = st.columns([2.0, 3.8, 1.2])
+# --- 4. TOP NAVBAR (Simplified to 5 core professional tabs) ---
+col_logo, col_nav, col_cta = st.columns([2.0, 3.5, 1.2])
 
 with col_logo:
     st.markdown(
@@ -595,72 +593,30 @@ with col_logo:
     )
 
 with col_nav:
-    n1, n2, n3, n4, n5, n6 = st.columns(6)
+    n1, n2, n3, n4, n5 = st.columns(5)
     with n1:
-        if st.button(
-            "Home",
-            key="nav_home",
-            type="primary"
-            if st.session_state.active_tab == "Home"
-            else "tertiary",
-        ):
+        if st.button("Home", key="nav_home", type="primary" if st.session_state.active_tab == "Home" else "tertiary"):
             st.session_state.active_tab = "Home"
             st.rerun()
     with n2:
-        if st.button(
-            "Courses",
-            key="nav_courses",
-            type="primary"
-            if st.session_state.active_tab == "Courses"
-            else "tertiary",
-        ):
+        if st.button("Courses", key="nav_courses", type="primary" if st.session_state.active_tab == "Courses" else "tertiary"):
             st.session_state.active_tab = "Courses"
             st.rerun()
     with n3:
-        if st.button(
-            "Admission",
-            key="nav_admission",
-            type="primary"
-            if st.session_state.active_tab == "Admission"
-            else "tertiary",
-        ):
+        if st.button("Admission", key="nav_admission", type="primary" if st.session_state.active_tab == "Admission" else "tertiary"):
             st.session_state.active_tab = "Admission"
             st.rerun()
     with n4:
-        if st.button(
-            "AI Tutor",
-            key="nav_ai",
-            type="primary"
-            if st.session_state.active_tab == "Assistant"
-            else "tertiary",
-        ):
+        if st.button("AI Tutor", key="nav_ai", type="primary" if st.session_state.active_tab == "Assistant" else "tertiary"):
             st.session_state.active_tab = "Assistant"
             st.rerun()
     with n5:
-        if st.button(
-            "Tools ⚡",
-            key="nav_tools",
-            type="primary"
-            if st.session_state.active_tab == "StudyTools"
-            else "tertiary",
-        ):
-            st.session_state.active_tab = "StudyTools"
-            st.rerun()
-    with n6:
-        if st.button(
-            "Admin",
-            key="nav_admin",
-            type="primary"
-            if st.session_state.active_tab == "Admin"
-            else "tertiary",
-        ):
+        if st.button("Admin", key="nav_admin", type="primary" if st.session_state.active_tab == "Admin" else "tertiary"):
             st.session_state.active_tab = "Admin"
             st.rerun()
 
 with col_cta:
-    if st.button(
-        "Enroll Now 🚀", key="nav_enroll_btn", type="secondary", use_container_width=True
-    ):
+    if st.button("Enroll Now 🚀", key="nav_enroll_btn", type="secondary", use_container_width=True):
         st.session_state.active_tab = "Admission"
         st.rerun()
 
@@ -689,22 +645,12 @@ if st.session_state.active_tab == "Home":
 
         cta1, cta2 = st.columns([1, 1])
         with cta1:
-            if st.button(
-                "Explore Courses",
-                key="hero_explore",
-                type="primary",
-                use_container_width=True,
-            ):
+            if st.button("Explore Courses", key="hero_explore", type="primary", use_container_width=True):
                 st.session_state.active_tab = "Courses"
                 st.rerun()
 
         with cta2:
-            if st.button(
-                "Apply Admission",
-                key="hero_apply",
-                type="secondary",
-                use_container_width=True,
-            ):
+            if st.button("Apply Admission", key="hero_apply", type="secondary", use_container_width=True):
                 st.session_state.active_tab = "Admission"
                 st.rerun()
 
@@ -752,34 +698,10 @@ if st.session_state.active_tab == "Home":
 
     f1, f2, f3, f4 = st.columns(4)
     features = [
-        (
-            "Live Interactive Classes",
-            (
-                "Engage directly with expert faculty with immediate doubt"
-                " resolution during live sessions."
-            ),
-        ),
-        (
-            "Topical Past Papers",
-            (
-                "10+ years of topical past paper practice fully aligned with"
-                " CAIE marking schemes."
-            ),
-        ),
-        (
-            "Keyword Mastery",
-            (
-                "Learn exact subject-specific examiner keywords required for"
-                " top grade boundaries."
-            ),
-        ),
-        (
-            "Parent Tracking",
-            (
-                "Regular attendance updates, test feedback, and personal"
-                " student performance reports."
-            ),
-        ),
+        ("Live Interactive Classes", "Engage directly with expert faculty with immediate doubt resolution during live sessions."),
+        ("Topical Past Papers", "10+ years of topical past paper practice fully aligned with CAIE marking schemes."),
+        ("Keyword Mastery", "Learn exact subject-specific examiner keywords required for top grade boundaries."),
+        ("Parent Tracking", "Regular attendance updates, test feedback, and personal student performance reports."),
     ]
     for col, (title, desc) in zip([f1, f2, f3, f4], features):
         with col:
@@ -795,15 +717,8 @@ if st.session_state.active_tab == "Home":
 
 # PAGE: COURSES
 elif st.session_state.active_tab == "Courses":
-    st.markdown(
-        '<div class="vibrant-title">Explore Academic Courses</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        '<div class="vibrant-subtitle">Select an individual subject or discount'
-        " combo package below.</div>",
-        unsafe_allow_html=True,
-    )
+    st.markdown('<div class="vibrant-title">Explore Academic Courses</div>', unsafe_allow_html=True)
+    st.markdown('<div class="vibrant-subtitle">Select an individual subject or discount combo package below.</div>', unsafe_allow_html=True)
 
     f_col1, f_col2 = st.columns([2.5, 1.2])
     with f_col1:
@@ -833,8 +748,7 @@ elif st.session_state.active_tab == "Courses":
         filtered = [
             c
             for c in filtered
-            if search_txt.lower() in c["title"].lower()
-            or search_txt.lower() in c["desc"].lower()
+            if search_txt.lower() in c["title"].lower() or search_txt.lower() in c["desc"].lower()
         ]
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -846,11 +760,7 @@ elif st.session_state.active_tab == "Courses":
             c_img, c_main, c_side = st.columns([1, 2.2, 1.1])
 
             with c_img:
-                st.markdown(
-                    f'<img src="{item["image"]}" class="course-card-img"'
-                    f' alt="{item["title"]}" />',
-                    unsafe_allow_html=True,
-                )
+                st.markdown(f'<img src="{item["image"]}" class="course-card-img" alt="{item["title"]}" />', unsafe_allow_html=True)
 
             with c_main:
                 st.markdown(
@@ -875,51 +785,28 @@ elif st.session_state.active_tab == "Courses":
                     unsafe_allow_html=True,
                 )
 
-                if st.button(
-                    "Apply For Course",
-                    key=f"btn_enroll_{item['id']}",
-                    type="primary",
-                    use_container_width=True,
-                ):
-                    st.session_state.selected_course_for_enrollment = item[
-                        "title"
-                    ]
+                if st.button("Apply For Course", key=f"btn_enroll_{item['id']}", type="primary", use_container_width=True):
+                    st.session_state.selected_course_for_enrollment = item["title"]
                     st.session_state.active_tab = "Admission"
                     st.rerun()
 
-                # --- UPGRADE: WhatsApp Quick Inquiry Button ---
                 wa_msg = urllib.parse.quote(f"Hello Sir Abdullah Academy, I am interested in enrolling in {item['title']}. Please guide me.")
                 st.markdown(
                     f'<a href="https://wa.me/923001234567?text={wa_msg}" target="_blank" style="display:block; text-align:center; margin-top:0.4rem; font-size:0.75rem; font-weight:700; color:#fb7185; text-decoration:none; border:1px solid rgba(244,63,94,0.3); border-radius:8px; padding:4px;">💬 Chat on WhatsApp</a>',
                     unsafe_allow_html=True
                 )
 
-        st.markdown(
-            "<hr style='border: none; border-bottom: 1px solid"
-            " rgba(244,63,94,0.2); margin: 1.2rem 0;'>",
-            unsafe_allow_html=True,
-        )
+        st.markdown("<hr style='border: none; border-bottom: 1px solid rgba(244,63,94,0.2); margin: 1.2rem 0;'>", unsafe_allow_html=True)
 
 # PAGE: ADMISSION
 elif st.session_state.active_tab == "Admission":
-    st.markdown(
-        '<div class="vibrant-title">Online Admission Form</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        '<div class="vibrant-subtitle">Reserve your seat for the upcoming CAIE'
-        " academic session.</div>",
-        unsafe_allow_html=True,
-    )
+    st.markdown('<div class="vibrant-title">Online Admission Form</div>', unsafe_allow_html=True)
+    st.markdown('<div class="vibrant-subtitle">Reserve your seat for the upcoming CAIE academic session.</div>', unsafe_allow_html=True)
 
-    all_options = [c["title"] for c in SPECIAL_COMBOS] + [
-        c["title"] for c in O_LEVEL_COURSES
-    ]
+    all_options = [c["title"] for c in SPECIAL_COMBOS] + [c["title"] for c in O_LEVEL_COURSES]
     default_idx = 0
     if st.session_state.selected_course_for_enrollment in all_options:
-        default_idx = all_options.index(
-            st.session_state.selected_course_for_enrollment
-        )
+        default_idx = all_options.index(st.session_state.selected_course_for_enrollment)
 
     col_l, col_center, col_r = st.columns([0.15, 0.7, 0.15])
 
@@ -977,14 +864,8 @@ elif st.session_state.active_tab == "Admission":
 
 # PAGE: AI ASSISTANT / TUTOR
 elif st.session_state.active_tab == "Assistant":
-    st.markdown(
-        '<div class="vibrant-title">Sir Abdullah AI Tutor</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        '<div class="vibrant-subtitle">Ask questions about CAIE syllabi, past papers, concepts, or academy schedules 24/7.</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown('<div class="vibrant-title">Sir Abdullah AI Tutor</div>', unsafe_allow_html=True)
+    st.markdown('<div class="vibrant-subtitle">Ask questions about CAIE syllabi, past papers, concepts, or academy schedules 24/7.</div>', unsafe_allow_html=True)
 
     if "messages" not in st.session_state:
         st.session_state.messages = [
@@ -1007,93 +888,6 @@ elif st.session_state.active_tab == "Assistant":
                 response = get_bot_response(prompt, st.session_state.messages)
                 st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
-
-# --- NEW UPGRADE: STUDY TOOLS & PRACTICE PORTAL ---
-elif st.session_state.active_tab == "StudyTools":
-    st.markdown('<div class="vibrant-title">Student Study & Practice Hub</div>', unsafe_allow_html=True)
-    st.markdown('<div class="vibrant-subtitle">Test your concepts with instant CAIE topical check-quizzes and track your grade projections.</div>', unsafe_allow_html=True)
-
-    tool_tab1, tool_tab2, tool_tab3 = st.tabs(["⚡ Topical Quick-Quiz", "📊 Grade Progress Tracker", "📅 Weekly Study Planner"])
-
-    with tool_tab1:
-        st.markdown("### Interactive CAIE Check Quiz")
-        subject_choice = st.selectbox("Select Quiz Subject", ["Computer Science (2210)", "Physics (5054)", "Mathematics (4024)", "Chemistry (5070)"])
-        
-        # Simple sample dynamic mock questions based on subject selection
-        sample_questions = {
-            "Computer Science (2210)": {
-                "q": "Which gate outputs 1 only when both inputs are different?",
-                "options": ["AND Gate", "OR Gate", "XOR Gate", "NOR Gate"],
-                "answer": "XOR Gate",
-                "explanation": "An Exclusive-OR (XOR) gate outputs 1 if and only if the inputs are dissimilar."
-            },
-            "Physics (5054)": {
-                "q": "What is the SI unit of gravitational field strength?",
-                "options": ["N/kg", "J/s", "kg/m^3", "m/s^2"],
-                "answer": "N/kg",
-                "explanation": "Gravitational field strength is measured in Newtons per kilogram (N/kg) or meters per second squared (m/s^2)."
-            },
-            "Mathematics (4024)": {
-                "q": "If vector a = (3, -4), what is its magnitude |a|?",
-                "options": ["5", "7", "1", "25"],
-                "answer": "5",
-                "explanation": "Magnitude is calculated as the square root of (3^2 + (-4^2)) = sqrt(9 + 16) = sqrt(25) = 5."
-            },
-            "Chemistry (5070)": {
-                "q": "What colour does anhydrous copper(II) sulfate turn in the presence of water?",
-                "options": ["White to Blue", "Blue to Pink", "Colourless to Red", "Yellow to Green"],
-                "answer": "White to Blue",
-                "explanation": "Anhydrous copper sulfate is white and turns blue upon hydration, serving as a chemical test for water."
-            }
-        }
-
-        current_q = sample_questions.get(subject_choice)
-        st.markdown(f"<div class='glass-card'><b>Question:</b> {current_q['q']}</div>", unsafe_allow_html=True)
-        
-        user_ans = st.radio("Choose your answer:", current_q["options"], key=f"quiz_{subject_choice}")
-        if st.button("Submit Answer 🎯", key=f"sub_quiz_{subject_choice}"):
-            if user_ans == current_q["answer"]:
-                st.success(f"🎉 Correct! {current_q['explanation']}")
-                st.balloons()
-            else:
-                st.error(f"❌ Incorrect. The correct answer is **{current_q['answer']}**. {current_q['explanation']}")
-
-    with tool_tab2:
-        st.markdown("### CAIE Target Grade Estimator")
-        st.markdown("Input your recent mock exam scores (%) to estimate your likely CAIE grade boundary:")
-        
-        col_g1, col_g2 = st.columns(2)
-        with col_g1:
-            mock_score = st.slider("Recent Mock Exam Percentage (%)", min_value=0, max_value=100, value=75)
-            attendance_rate = st.slider("Live Class Attendance Rate (%)", min_value=0, max_value=100, value=90)
-        with col_g2:
-            st.markdown("<br>", unsafe_allow_html=True)
-            # Simple grading algorithm estimation
-            est_grade = "A*" if mock_score >= 80 else ("A" if mock_score >= 70 else ("B" if mock_score >= 60 else "C"))
-            st.markdown(f"""
-            <div class="glass-card" style="text-align: center;">
-                <p style="font-size: 0.8rem; font-weight: 700; color: #fb7185; text-transform: uppercase;">Estimated Projected Grade</p>
-                <div style="font-size: 3rem; font-weight: 800; color: #ffffff; text-shadow: 0 0 20px rgba(244,63,94,0.6);">{est_grade}</div>
-                <p style="font-size: 0.85rem; color: #d6d3d1; margin-top: 0.5rem;">Based on your mock percentage and consistency score.</p>
-            </div>
-            """, unsafe_allow_html=True)
-
-    with tool_tab3:
-        st.markdown("### Custom Weekly Study Planner Generator")
-        student_sub = st.selectbox("Primary Focus Subject", ["Computer Science", "Mathematics", "Physics", "Chemistry", "Biology"])
-        study_hours = st.slider("Dedicated Daily Study Hours", 1, 6, 3)
-        
-        if st.button("Generate Study Blueprint 📅"):
-            st.markdown(f"""
-            <div class="glass-card">
-                <h4 style="color: #fb7185; font-weight: 800;">Your Custom Blueprint for {student_sub}</h4>
-                <p style="color: #ffffff; font-size: 0.9rem; margin-top: 0.8rem;">
-                    <b>Hour 1:</b> Core concept textbook review & summary notes.<br>
-                    <b>Hour 2:</b> Topical past paper practice (minimum 2 structured questions).<br>
-                    <b>Hour {3 if study_hours >= 3 else study_hours}:</b> Marking scheme self-evaluation and correcting examiner keywords.
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
 
 # PAGE: ADMIN PORTAL
 elif st.session_state.active_tab == "Admin":
